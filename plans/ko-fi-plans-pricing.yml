@@ -1,0 +1,106 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Ko-fi
+providerId: ko-fi
+created: '2026-07-05'
+modified: '2026-07-05'
+reconciled: false
+tags:
+- Creator Economy
+- Donations
+- Memberships
+- Shop
+- Payments
+- Plans
+description: >-
+  Ko-fi's pricing is creator-account pricing, not API pricing - the payment
+  webhook is available on every account at no extra charge. Two account tiers
+  exist. The Free plan charges 0% platform fee on tips and donations, and a 5%
+  platform fee on memberships, shop sales, and commissions. Ko-fi Gold is a flat
+  monthly subscription that removes the 5% platform fee across memberships, shop
+  sales, and commissions (tips and donations are already 0% on both plans).
+  Third-party payment processing fees (roughly 2.9% + $0.30 per transaction via
+  PayPal or Stripe) apply on both plans and are charged by the processor, not by
+  Ko-fi.
+notes: >-
+  Ko-fi Gold was historically about $6/month; as of 2026 new accounts are quoted
+  at roughly $12/month, and annual billing is no longer offered to new users.
+  Verify the current Gold price and fee percentages on ko-fi.com/pricing during
+  reconciliation. Ko-fi Gold breaks even around $240/month of membership/shop/
+  commission revenue (5% of $240 = $12).
+sources:
+- https://ko-fi.com/pricing
+- https://ko-fi.com/gold
+- https://help.ko-fi.com/hc/en-us/articles/360002506494-Does-Ko-fi-take-a-fee
+plans:
+- id: ko-fi-free
+  name: Free
+  type: free
+  description: >-
+    The default Ko-fi account. 0% platform fee on tips and donations; 5%
+    platform fee on memberships, shop sales, and commissions. Includes the
+    payment webhook, Ko-fi Shop, memberships, commissions, and a public page.
+  entries:
+  - label: Platform Fee on Tips and Donations
+    name: fee_tips
+    type: usage
+    metric: percent
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: 0% platform fee
+    userMultiplied: false
+  - label: Platform Fee on Memberships, Shop, and Commissions
+    name: fee_memberships_shop_commissions
+    type: usage
+    metric: percent
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: 5% platform fee
+    userMultiplied: false
+  elements:
+  - name: Tips and Donations (0% fee)
+  - name: Memberships
+  - name: Ko-fi Shop
+  - name: Commissions
+  - name: Payment Webhook
+- id: ko-fi-gold
+  name: Ko-fi Gold
+  type: subscription
+  description: >-
+    Flat monthly subscription that removes the 5% platform fee on memberships,
+    shop sales, and commissions, and unlocks additional creator features
+    (analytics, more customization, scheduling). Tips and donations remain 0%.
+  entries:
+  - label: Ko-fi Gold Subscription
+    name: gold_subscription
+    type: flat
+    metric: subscription
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: flat monthly fee (approx. $12/month for new accounts; historically ~$6/month)
+    userMultiplied: false
+  - label: Platform Fee on Memberships, Shop, and Commissions
+    name: gold_fee_memberships_shop_commissions
+    type: usage
+    metric: percent
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: 0% platform fee
+    userMultiplied: false
+  elements:
+  - name: 0% Platform Fee on All Payment Types
+  - name: Advanced Analytics
+  - name: More Page Customization
+  - name: Payment Webhook
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

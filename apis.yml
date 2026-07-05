@@ -1,0 +1,75 @@
+aid: ko-fi
+url: https://raw.githubusercontent.com/api-evangelist/ko-fi/refs/heads/main/apis.yml
+name: Ko-fi
+kind: company
+description: >-
+  Ko-fi is a creator monetization platform where fans support creators through
+  one-off tips ("buy me a coffee"), recurring memberships, digital and physical
+  shop products, and paid commissions. Ko-fi charges 0% platform fee on tips and
+  donations. Its developer surface is intentionally narrow and integration-only:
+  Ko-fi does not publish a public REST API. Instead it offers an outbound
+  WEBHOOK that HTTP POSTs payment notifications (donations, subscription /
+  membership payments, shop orders, and commissions) to a URL you configure on
+  your Ko-fi webhooks page. Each POST is application/x-www-form-urlencoded with a
+  single "data" field carrying a JSON payload, and includes a verification_token
+  so you can confirm the request originated from Ko-fi. The webhook is one-way
+  (Ko-fi to your endpoint) and fires only when a payment happens - there is no
+  request/response API to read, create, or manage donations, members, or orders.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Creator Economy
+- Donations
+- Tips
+- Memberships
+- Shop
+- Payments
+- Webhooks
+- Creator Monetization
+created: '2026-07-05'
+modified: '2026-07-05'
+specificationVersion: '0.19'
+apis:
+- aid: ko-fi:ko-fi-webhook
+  name: Ko-fi Webhook
+  tags:
+  - Webhooks
+  - Payments
+  - Donations
+  - Memberships
+  - Shop Orders
+  - Commissions
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook
+  properties:
+  - url: https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook
+    type: Documentation
+  - url: https://ko-fi.com/manage/webhooks
+    type: Console
+  - url: asyncapi/ko-fi-asyncapi.yml
+    type: AsyncAPI
+  description: >-
+    Outbound webhook that Ko-fi HTTP POSTs to a URL you configure whenever a
+    payment happens on your Ko-fi page. The single POST body is form-encoded
+    with a "data" field containing a JSON payload; a "type" field distinguishes
+    the event - Donation, Subscription, Shop Order, or Commission - and a
+    verification_token confirms the request came from Ko-fi. This is a one-way,
+    server-to-endpoint notification, not a readable/queryable REST API. Modeled
+    in asyncapi/ko-fi-asyncapi.yml as an inbound HTTP webhook (not WebSocket).
+common:
+- type: LinkedIn
+  url: https://www.linkedin.com/company/ko-fi
+- type: Website
+  url: https://ko-fi.com
+- type: Documentation
+  url: https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook
+- type: Plans
+  url: plans/ko-fi-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/ko-fi-rate-limits.yml
+- type: FinOps
+  url: finops/ko-fi-finops.yml
+- url: https://blog.ko-fi.com
+  type: Blog
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

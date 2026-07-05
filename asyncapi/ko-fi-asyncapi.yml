@@ -1,0 +1,300 @@
+asyncapi: '2.6.0'
+id: 'urn:com:ko-fi:webhook'
+info:
+  title: Ko-fi Payment Webhook (Outbound HTTP POST)
+  version: '1.0.0'
+  description: |
+    AsyncAPI 2.6 description of Ko-fi's **only** documented developer surface:
+    an **outbound payment webhook**.
+
+    Ko-fi does **not** publish a public REST API. There is no request/response
+    endpoint to read, create, update, or delete donations, members, orders, or
+    commissions. The single integration point is a webhook you enable on your
+    Ko-fi webhooks page (https://ko-fi.com/manage/webhooks): whenever a payment
+    happens, Ko-fi's servers send an HTTP `POST` to the URL you configured.
+
+    Transport details (from
+    https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook):
+
+    - It is a normal **HTTP POST**, one-way from Ko-fi to your endpoint. It is
+      **not** WebSocket and **not** Server-Sent Events.
+    - The request `Content-Type` is `application/x-www-form-urlencoded`. The body
+      carries a single form field named `data` whose value is a **JSON string**.
+    - The JSON includes a `verification_token` (a private token shown on your
+      Ko-fi webhooks page). Your endpoint should compare it to your stored token
+      and reject the request if it does not match.
+    - A top-level `type` field identifies the event: `Donation`, `Subscription`,
+      `Shop Order`, or `Commission`.
+    - The webhook fires **only when a payment is made**. Ko-fi documents that it
+      cannot, for example, notify you when a membership ends - only when a
+      membership payment occurs.
+
+    Because Ko-fi POSTs to *your* server, there is no Ko-fi-hosted base URL for
+    this API; the "server" below is a placeholder for the consumer-operated
+    endpoint that receives the webhook.
+  contact:
+    name: API Evangelist
+    email: kin@apievangelist.com
+    url: https://apievangelist.com
+  license:
+    name: API documentation - Ko-fi Terms
+    url: https://ko-fi.com/terms
+  x-transport-notes:
+    transport: HTTP Webhook (outbound POST)
+    protocol: https
+    direction: server-to-endpoint (one-way, Ko-fi to your URL)
+    contentType: application/x-www-form-urlencoded
+    bodyField: data
+    bodyEncoding: JSON string inside the "data" form field
+    verification: verification_token field must match the token on your Ko-fi webhooks page
+    firesOn: a payment event only (tip/donation, membership payment, shop order, commission)
+    notWebSocket: true
+    notSSE: true
+    source: https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook
+defaultContentType: application/x-www-form-urlencoded
+servers:
+  consumer-endpoint:
+    url: '{yourWebhookUrl}'
+    protocol: https
+    description: |
+      The HTTPS URL you register on https://ko-fi.com/manage/webhooks. Ko-fi
+      POSTs payment notifications here. This is operated by you (the Ko-fi
+      creator / integrator), not by Ko-fi.
+    variables:
+      yourWebhookUrl:
+        description: Your publicly reachable HTTPS endpoint that receives Ko-fi webhook POSTs.
+        default: https://your-domain.example/ko-fi/webhook
+channels:
+  ko-fi/payment:
+    description: |
+      Payment webhook channel. Ko-fi issues an HTTP POST to your configured URL
+      when a payment occurs. The POST is `application/x-www-form-urlencoded`
+      with a single `data` field whose value is a JSON string. The `type` field
+      inside that JSON selects one of the message variants below. Your service
+      "subscribes" (receives) these events; Ko-fi is the publisher.
+    bindings:
+      http:
+        type: request
+        method: POST
+        bindingVersion: '0.3.0'
+    subscribe:
+      operationId: receiveKoFiPayment
+      summary: Receive a Ko-fi payment notification.
+      description: |
+        Invoked by Ko-fi when a payment happens. Validate `verification_token`,
+        then branch on `type`.
+      message:
+        oneOf:
+        - $ref: '#/components/messages/Donation'
+        - $ref: '#/components/messages/Subscription'
+        - $ref: '#/components/messages/ShopOrder'
+        - $ref: '#/components/messages/Commission'
+components:
+  messages:
+    Donation:
+      name: Donation
+      title: Donation / Tip
+      summary: A one-off tip or donation to your Ko-fi page.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/KoFiPayment'
+      examples:
+      - name: donation
+        payload:
+          verification_token: 00000000-0000-0000-0000-000000000000
+          message_id: 3a1fac0c-f960-4506-a60e-824979a74e74
+          timestamp: '2026-07-05T14:22:31Z'
+          type: Donation
+          is_public: true
+          from_name: Jo Example
+          message: Great work!
+          amount: '5.00'
+          url: https://ko-fi.com/Home/CoffeeShop?txid=00000000-1111-2222-3333-444444444444
+          email: jo@example.com
+          currency: USD
+          is_subscription_payment: false
+          is_first_subscription_payment: false
+          kofi_transaction_id: 00000000-1111-2222-3333-444444444444
+          tier_name: null
+          shop_items: null
+          shipping: null
+    Subscription:
+      name: Subscription
+      title: Subscription / Membership Payment
+      summary: A recurring membership payment. Fires on each payment, including the first.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/KoFiPayment'
+      examples:
+      - name: subscription
+        payload:
+          verification_token: 00000000-0000-0000-0000-000000000000
+          message_id: 41d4a12e-9b3a-4b1e-8d0f-2c7e5b6a1234
+          timestamp: '2026-07-05T14:25:10Z'
+          type: Subscription
+          is_public: true
+          from_name: Sam Member
+          message: null
+          amount: '6.00'
+          url: https://ko-fi.com/Home/CoffeeShop?txid=55555555-6666-7777-8888-999999999999
+          email: sam@example.com
+          currency: USD
+          is_subscription_payment: true
+          is_first_subscription_payment: true
+          kofi_transaction_id: 55555555-6666-7777-8888-999999999999
+          tier_name: Gold Tier
+          shop_items: null
+          shipping: null
+    ShopOrder:
+      name: ShopOrder
+      title: Shop Order
+      summary: A purchase from your Ko-fi Shop. Includes shop_items and, for physical goods, shipping.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/KoFiPayment'
+      examples:
+      - name: shop-order
+        payload:
+          verification_token: 00000000-0000-0000-0000-000000000000
+          message_id: 8f2b6c11-77aa-4c33-9b21-abcabcabcabc
+          timestamp: '2026-07-05T14:30:00Z'
+          type: Shop Order
+          is_public: true
+          from_name: Pat Buyer
+          message: null
+          amount: '25.00'
+          url: https://ko-fi.com/Home/CoffeeShop?txid=aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+          email: pat@example.com
+          currency: USD
+          is_subscription_payment: false
+          is_first_subscription_payment: false
+          kofi_transaction_id: aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee
+          tier_name: null
+          shop_items:
+          - direct_link_code: b1e2c3d4e5
+            variation_name: Large
+            quantity: 1
+          shipping:
+            full_name: Pat Buyer
+            street_address: 123 Example St
+            city: Anytown
+            state_or_province: CA
+            postal_code: '90000'
+            country: United States
+            country_code: US
+            telephone: '+1-555-0100'
+    Commission:
+      name: Commission
+      title: Commission
+      summary: >-
+        A paid commission request. Ko-fi documents Commission as a webhook type
+        but does not publish an example payload; it follows the same base shape
+        as other payment events.
+      contentType: application/json
+      payload:
+        $ref: '#/components/schemas/KoFiPayment'
+  schemas:
+    KoFiPayment:
+      type: object
+      description: >-
+        The JSON object carried in the form-encoded "data" field of every Ko-fi
+        payment webhook POST. Field presence varies by event type (for example,
+        shop_items and shipping are populated only for Shop Orders; tier_name
+        only for memberships).
+      required:
+      - verification_token
+      - message_id
+      - timestamp
+      - type
+      - amount
+      - currency
+      - kofi_transaction_id
+      properties:
+        verification_token:
+          type: string
+          description: Private token shown on your Ko-fi webhooks page; compare to reject spoofed requests.
+        message_id:
+          type: string
+          description: Unique identifier for this webhook message.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the payment occurred.
+        type:
+          type: string
+          enum:
+          - Donation
+          - Subscription
+          - Shop Order
+          - Commission
+          description: The kind of payment event.
+        is_public:
+          type: boolean
+          description: Whether the supporter chose to make the message public.
+        from_name:
+          type: string
+          description: Display name of the supporter (or 'Anonymous').
+        message:
+          type: string
+          description: Optional message left by the supporter. May be null.
+        amount:
+          type: string
+          description: Payment amount as a decimal string, e.g. "5.00".
+        url:
+          type: string
+          format: uri
+          description: Link to the transaction on Ko-fi.
+        email:
+          type: string
+          format: email
+          description: Supporter email (present when shared with the creator).
+        currency:
+          type: string
+          description: ISO 4217 currency code, e.g. USD, GBP, EUR.
+        is_subscription_payment:
+          type: boolean
+          description: True when the payment is a recurring membership payment.
+        is_first_subscription_payment:
+          type: boolean
+          description: True only on the first payment of a new membership.
+        kofi_transaction_id:
+          type: string
+          description: Ko-fi's unique transaction identifier.
+        tier_name:
+          type: string
+          description: Membership tier name for subscription payments; null otherwise.
+        shop_items:
+          type: array
+          description: Items purchased for a Shop Order; null for non-shop events.
+          items:
+            type: object
+            properties:
+              direct_link_code:
+                type: string
+                description: Code identifying the purchased shop item.
+              variation_name:
+                type: string
+                description: Selected product variation, if any.
+              quantity:
+                type: integer
+                description: Quantity purchased.
+        shipping:
+          type: object
+          description: Shipping address for physical Shop Orders; null otherwise.
+          properties:
+            full_name:
+              type: string
+            street_address:
+              type: string
+            city:
+              type: string
+            state_or_province:
+              type: string
+            postal_code:
+              type: string
+            country:
+              type: string
+            country_code:
+              type: string
+            telephone:
+              type: string

@@ -1,0 +1,98 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Ko-fi
+providerId: ko-fi
+created: '2026-07-05'
+modified: '2026-07-05'
+reconciled: false
+tags:
+- Creator Economy
+- Donations
+- Memberships
+- Shop
+- Payments
+- FinOps
+- Cost Management
+- FOCUS
+description: >-
+  FinOps view of Ko-fi spend. Ko-fi is a monetization platform, so cost flows in
+  two directions. Ko-fi does not bill for API/webhook usage; instead it takes a
+  platform fee out of the money you collect (0% on tips and donations; 5% on
+  memberships, shop sales, and commissions on the Free plan). Ko-fi Gold is a
+  flat monthly subscription that removes the 5% platform fee. Separately,
+  third-party payment processors (PayPal, Stripe) charge roughly 2.9% + $0.30
+  per transaction on both plans. There is no metered per-request or per-webhook
+  charge.
+notes: >-
+  Fee percentages and the Ko-fi Gold monthly price should be verified on
+  ko-fi.com/pricing during reconciliation. Processor fees are set by PayPal and
+  Stripe, not Ko-fi, and vary by region and payout method.
+sources:
+- https://ko-fi.com/pricing
+- https://ko-fi.com/gold
+- https://help.ko-fi.com/hc/en-us/articles/360002506494-Does-Ko-fi-take-a-fee
+- https://focus.finops.org/focus-specification/v1-3/
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Ko-fi
+serviceCategory: Creator Monetization and Payments
+billingModel:
+  pricingCategory: Commission and Subscription
+  billingFrequency: Per Transaction and Monthly
+  billingCurrency: USD
+  chargeCategories:
+  - Usage
+  - Purchase
+focusColumns:
+  ServiceName: Ko-fi
+  ServiceCategory: Creator Monetization and Payments
+  ProviderName: Ko-fi
+  PublisherName: Ko-fi
+  InvoiceIssuerName: Ko-fi
+  BillingCurrency: USD
+  ChargeCategory: Usage
+  PricingCategory: Commission and Subscription
+meters:
+- name: platform_fee_memberships_shop_commissions
+  description: 5% platform fee taken from memberships, shop sales, and commissions on the Free plan (0% on Ko-fi Gold).
+  unit: percent
+  aggregation: sum
+  dimensions:
+  - account
+  - payment_type
+- name: platform_fee_tips
+  description: Platform fee on tips and donations - 0% on both plans.
+  unit: percent
+  aggregation: sum
+  dimensions:
+  - account
+- name: gold_subscription
+  description: Flat monthly Ko-fi Gold subscription that removes the 5% platform fee.
+  unit: months
+  aggregation: sum
+  dimensions:
+  - account
+- name: processor_fee
+  description: Third-party payment processor fee (~2.9% + $0.30 per transaction) charged by PayPal or Stripe.
+  unit: transactions
+  aggregation: sum
+  dimensions:
+  - account
+  - processor
+principles:
+- name: Visibility
+  description: Reconcile Ko-fi payout reports against the webhook events your endpoint receives (by kofi_transaction_id) to see gross revenue, platform fee, and processor fee per payment type.
+- name: Allocation
+  description: Split revenue and fees by payment type - tips, memberships, shop, commissions - since only tips/donations are truly 0% fee.
+- name: Optimization
+  description: Compare the 5% platform fee against the flat Ko-fi Gold subscription; Gold pays for itself once monthly membership/shop/commission revenue exceeds roughly $240.
+- name: Accountability
+  description: Assign an owner to review monthly Ko-fi payouts, Gold subscription cost, and processor fees against creator revenue targets.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

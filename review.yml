@@ -1,0 +1,106 @@
+aid: ko-fi
+name: Ko-fi
+review:
+  question: Does Ko-fi expose a documented public WebSocket API?
+  answer: false
+  date: '2026-07-05'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: true
+  asyncapiScopeNote: |
+    An AsyncAPI 2.6 document was authored at asyncapi/ko-fi-asyncapi.yml, but it
+    models Ko-fi's OUTBOUND HTTP WEBHOOK, not a WebSocket. Ko-fi's only
+    documented developer surface is a one-way HTTP POST that Ko-fi sends to a URL
+    you configure when a payment happens. The AsyncAPI document uses http
+    request bindings and an x-transport-notes block that states explicitly the
+    transport is an outbound HTTP webhook (application/x-www-form-urlencoded with
+    a JSON "data" field), and that it is neither WebSocket nor SSE, so the
+    webhook is never misrepresented as a realtime bidirectional API.
+findings:
+  summary: |
+    Ko-fi does not publish a public WebSocket API, and it does not publish a
+    public REST API either. Ko-fi is a creator monetization platform (tips /
+    donations, memberships, a shop, and commissions). Its entire documented
+    developer surface is a single OUTBOUND WEBHOOK configured at
+    https://ko-fi.com/manage/webhooks. When a payment occurs, Ko-fi's servers
+    send an HTTP POST to the URL you provide. The POST is
+    application/x-www-form-urlencoded with one field named "data" containing a
+    JSON string; that JSON includes a verification_token (to confirm the request
+    came from Ko-fi) and a "type" field with values Donation, Subscription, Shop
+    Order, or Commission. There is no request/response API to query, create, or
+    manage donations, members, orders, or commissions, and Ko-fi documents that
+    the webhook fires only when a payment is made (for example, it cannot notify
+    you when a membership ends). No ws:// or wss:// endpoint is documented
+    anywhere.
+  publicApiStatus: |
+    WEBHOOK-ONLY. No public REST API. No public GraphQL API. No public WebSocket
+    API. The only integration is the outbound payment webhook. Third parties
+    also integrate Ko-fi via Zapier and community-built webhook receivers, but
+    those sit on top of the same single webhook.
+  transports:
+    - protocol: HTTP Webhook
+      scheme: https
+      direction: outbound (Ko-fi to your endpoint)
+      contentType: application/x-www-form-urlencoded
+      documented: true
+      note: Single POST with a "data" form field carrying JSON. Fires on a payment event only. This is the entire developer surface.
+    - protocol: REST
+      scheme: https
+      documented: false
+      note: Ko-fi does not publish a public request/response REST API.
+    - protocol: WebSocket
+      scheme: wss
+      documented: false
+      note: No WebSocket endpoint is documented anywhere on Ko-fi as of the review date.
+  webhookEventTypes:
+    - Donation
+    - Subscription
+    - Shop Order
+    - Commission
+  webhookPayloadFields:
+    - verification_token
+    - message_id
+    - timestamp
+    - type
+    - is_public
+    - from_name
+    - message
+    - amount
+    - url
+    - email
+    - currency
+    - is_subscription_payment
+    - is_first_subscription_payment
+    - kofi_transaction_id
+    - tier_name
+    - shop_items (direct_link_code, variation_name, quantity)
+    - shipping (full_name, street_address, city, state_or_province, postal_code, country, country_code, telephone)
+sources:
+  - url: https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook
+    type: Documentation
+    note: Official Ko-fi help article - confirms webhook-only model, HTTP POST payload, verification, and that the webhook fires only on payment.
+  - url: https://ko-fi.com/manage/webhooks
+    type: Console
+    note: Where a creator sets the webhook URL and finds the verification token (requires login).
+  - url: https://help.ko-fi.com/hc/en-us/sections/11164383150365-Integrations
+    type: Documentation
+    note: Ko-fi integrations hub (Zapier and others) built on the webhook.
+  - url: https://help.ko-fi.com/hc/en-us/articles/360002506494-Does-Ko-fi-take-a-fee
+    type: Documentation
+    note: Fee structure - 0% on tips/donations, 5% on memberships/shop/commissions on Free, removed by Ko-fi Gold.
+  - url: https://docs.christinak.ca/extensions/ko-fi
+    type: Reference
+    note: Community documentation enumerating webhook payload fields and the four type values.
+  - url: https://n8n.io/workflows/3186-process-ko-fi-donations-subscriptions-and-shop-orders-with-webhook-verification/
+    type: Reference
+    note: Community workflow showing verification_token check and Donation/Subscription/Shop Order handling.
+actions:
+  asyncapiPath: asyncapi/ko-fi-asyncapi.yml
+  apisYmlUpdated: true
+  reason: |
+    No WebSocket surface exists, and Ko-fi has no public REST API to model in
+    OpenAPI. The honest, documented surface is a single outbound HTTP webhook,
+    so an AsyncAPI 2.6 document was authored describing that webhook (http
+    request bindings, four message variants for Donation/Subscription/Shop
+    Order/Commission, and explicit x-transport-notes stating it is an outbound
+    HTTP POST webhook, not WebSocket or SSE). No OpenAPI, Postman collection, or
+    REST endpoints were fabricated.

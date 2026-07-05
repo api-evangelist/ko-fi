@@ -1,0 +1,57 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Ko-fi
+providerId: ko-fi
+created: '2026-07-05'
+modified: '2026-07-05'
+reconciled: false
+tags:
+- Creator Economy
+- Webhooks
+- Payments
+- Rate Limiting
+description: >-
+  Ko-fi's only developer surface is an outbound payment webhook, so traditional
+  request-rate limits do not apply - your service does not call Ko-fi. Ko-fi
+  POSTs a notification to your configured URL only when a payment happens, so the
+  effective "rate" is simply your payment volume. Ko-fi does not publish numeric
+  webhook delivery limits, retry counts, or timeout values. Because there is no
+  public REST API, there are no per-account or per-endpoint request quotas to
+  document.
+notes: >-
+  Ko-fi does not document webhook retry behavior; treat delivery as
+  at-most-once and make your receiver idempotent using kofi_transaction_id or
+  message_id. No numeric limits are published as of the review date.
+sources:
+- https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook
+- https://ko-fi.com/manage/webhooks
+responseCodes:
+  throttled: not applicable (inbound webhook; you return 200 to Ko-fi)
+limits:
+- name: Payment Webhook Delivery
+  scope: account
+  metric: events
+  limit: event-driven (one POST per payment)
+  notes: Ko-fi POSTs to your URL only when a payment occurs; no fixed numeric cap is published.
+- name: Public REST API Requests
+  scope: account
+  metric: requests
+  limit: not applicable
+  notes: Ko-fi does not expose a public REST API, so there is no outbound request quota.
+policies:
+- name: Idempotency
+  description: >-
+    Ko-fi may deliver a webhook and does not document retry semantics; dedupe on
+    kofi_transaction_id or message_id so re-delivered events are processed once.
+- name: Verification
+  description: >-
+    Reject any webhook whose verification_token does not match the token on your
+    Ko-fi webhooks page before doing any processing.
+- name: Fast Acknowledgement
+  description: >-
+    Return an HTTP 200 quickly and offload heavy work to a background job so the
+    webhook POST does not time out.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
