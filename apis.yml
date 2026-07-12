@@ -56,6 +56,8 @@ apis:
     server-to-endpoint notification, not a readable/queryable REST API. Modeled
     in asyncapi/ko-fi-asyncapi.yml as an inbound HTTP webhook (not WebSocket).
 common:
+- type: DomainSecurity
+  url: security/ko-fi-domain-security.yml
 - type: LinkedIn
   url: https://www.linkedin.com/company/ko-fi
 - type: Website
