@@ -15,7 +15,19 @@ description: >-
   so you can confirm the request originated from Ko-fi. The webhook is one-way
   (Ko-fi to your endpoint) and fires only when a payment happens - there is no
   request/response API to read, create, or manage donations, members, or orders.
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: freemium
+  onboarding: unknown
+  trial: false
+  try_now: false
+  public: false
+  label: Freemium
+  confidence: medium
+  source:
+  - plans
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/ko-fi.png
 tags:
 - Creator Economy
 - Donations
