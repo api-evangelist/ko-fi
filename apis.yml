@@ -39,7 +39,7 @@ tags:
 - Creator Monetization
 created: '2026-07-05'
 modified: '2026-07-05'
-specificationVersion: '0.19'
+specificationVersion: '0.23'
 apis:
 - aid: ko-fi:ko-fi-webhook
   name: Ko-fi Webhook
