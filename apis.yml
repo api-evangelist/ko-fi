@@ -35,6 +35,15 @@ tags:
 - Memberships
 - Shop
 - Payments
+- Webhook
+- Creator Monetization
+tags_raw:
+- Creator Economy
+- Donations
+- Tips
+- Memberships
+- Shop
+- Payments
 - Webhooks
 - Creator Monetization
 created: '2026-07-05'
@@ -44,6 +53,13 @@ apis:
 - aid: ko-fi:ko-fi-webhook
   name: Ko-fi Webhook
   tags:
+  - Webhook
+  - Payments
+  - Donations
+  - Memberships
+  - Shop Orders
+  - Commissions
+  tags_raw:
   - Webhooks
   - Payments
   - Donations
