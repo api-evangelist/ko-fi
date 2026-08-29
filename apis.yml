@@ -15,6 +15,17 @@ description: >-
   so you can confirm the request originated from Ko-fi. The webhook is one-way
   (Ko-fi to your endpoint) and fires only when a payment happens - there is no
   request/response API to read, create, or manage donations, members, or orders.
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: freemium
   onboarding: unknown
