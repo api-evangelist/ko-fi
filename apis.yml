@@ -43,7 +43,7 @@ tags:
 - Creator Economy
 - Donations
 - Tips
-- Memberships
+- Membership
 - Shop
 - Payments
 - Webhook
@@ -67,7 +67,7 @@ apis:
   - Webhook
   - Payments
   - Donations
-  - Memberships
+  - Membership
   - Shop Orders
   - Commissions
   tags_raw:
