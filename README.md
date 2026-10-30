@@ -1,4 +1,4 @@
-# Ko-fi (ko-fi)
+# Ko-fi
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -64,85 +64,121 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Ko-fi is a creator monetization platform where fans support creators through one-off tips ("buy me a coffee"), recurring memberships, digital and physical shop products, and paid commissions. Ko-fi is best known for charging **0% platform fee on tips and donations**.
+Ko-fi is a creator monetization platform where fans support creators through one-off tips ("buy me a coffee"), recurring memberships, digital and physical shop products, and paid commissions. Ko-fi charges 0% platform fee on tips and donations. Its developer surface is intentionally narrow and integration-only: Ko-fi does not publish a public REST API. Instead it offers an outbound WEBHOOK that HTTP POSTs payment notifications (donations, subscription / membership payments, shop orders, and commissions) to a URL you configure on your Ko-fi webhooks page. Each POST is application/x-www-form-urlencoded with a single "data" field carrying a JSON payload, and includes a verification_token so you can confirm the request originated from Ko-fi. The webhook is one-way (Ko-fi to your endpoint) and fires only when a payment happens - there is no request/response API to read, create, or manage donations, members, or orders.
 
-**Honest developer-surface note:** Ko-fi does **not** publish a public REST API, GraphQL API, or WebSocket API. Its entire documented developer surface is a single **outbound webhook**. When a payment happens on your Ko-fi page, Ko-fi's servers send an HTTP `POST` to a URL you configure on your [webhooks page](https://ko-fi.com/manage/webhooks). There is no request/response API to read, create, or manage donations, members, orders, or commissions.
+**Areas:** Creator Economy · Donations · Tips · Membership · Shop · Payments · Webhook · Creator Monetization
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/ko-fi/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/ko-fi/refs/heads/main/apis.yml)
+## Ko-fi on APIs.io
 
-## Tags
+Everything profiled for Ko-fi is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/ko-fi/](https://apis.io/providers/ko-fi/)** — or go straight to one of the APIs or properties below.
 
-- Creator Economy
-- Donations
-- Tips
-- Memberships
-- Shop
-- Payments
-- Webhooks
-- Creator Monetization
+### APIs (1)
 
-## Timestamps
+- [Ko-fi Webhook](https://apis.io/apis/ko-fi/ko-fi-webhook/) — Outbound webhook that Ko-fi HTTP POSTs to a URL you configure whenever a payment happens on your Ko-fi page. The single POST body is form-encoded with a…
 
-- **Created:** 2026-07-05
-- **Modified:** 2026-07-05
+### Published properties
 
-## How the Webhook Works
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-- Ko-fi sends an HTTP `POST` to your configured URL whenever a payment occurs.
-- The request is `application/x-www-form-urlencoded` with a single field named `data` whose value is a **JSON string**.
-- The JSON includes a `verification_token` (found on your Ko-fi webhooks page) so you can confirm the request came from Ko-fi and reject spoofed requests.
-- A `type` field identifies the event: **Donation**, **Subscription**, **Shop Order**, or **Commission**.
-- The webhook fires **only when a payment is made**. Ko-fi documents that it cannot, for example, notify you when a membership *ends* — only when a membership *payment* occurs.
-- It is a one-way HTTP webhook — **not** WebSocket, **not** Server-Sent Events.
+#### AsyncAPI (1)
 
-### Common payload fields
+Event-driven and webhook contracts.
 
-`verification_token`, `message_id`, `timestamp`, `type`, `is_public`, `from_name`, `message`, `amount`, `url`, `email`, `currency`, `is_subscription_payment`, `is_first_subscription_payment`, `kofi_transaction_id`, `tier_name`, `shop_items`, `shipping`.
+- [Ko-fi Payment Webhook (Outbound HTTP POST)](https://apis.io/asyncapis/ko-fi/ko-fi-asyncapi/)
 
-For **Shop Orders**, `shop_items` is an array of `{ direct_link_code, variation_name, quantity }`, and physical goods include a `shipping` object (`full_name`, `street_address`, `city`, `state_or_province`, `postal_code`, `country`, `country_code`, `telephone`). For **Subscriptions**, `is_subscription_payment` is `true` and `tier_name` names the membership tier.
+#### Event channels (1)
 
-## APIs
+Individual events and webhooks the provider emits.
 
-### Ko-fi Webhook
+- [ko-fi/payment](https://apis.io/channels/ko-fi/ko-fi-payment/)
 
-Outbound webhook that Ko-fi HTTP POSTs to a URL you configure whenever a payment happens on your Ko-fi page. A one-way, server-to-endpoint notification, not a readable/queryable REST API.
+#### Governance rules (1)
 
-- **Human URL:** [https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook](https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook)
+Spectral rulesets for the provider's contracts.
 
-#### Tags
+- [Ko-fi — asyncapi rules](https://apis.io/rules/ko-fi/ko-fi-asyncapi-spectral-rules/)
 
-- Webhooks
-- Payments
-- Donations
-- Memberships
-- Shop Orders
-- Commissions
+#### Security (1)
 
-#### Properties
+Authentication, trust centre, and vulnerability disclosure.
 
-- [Documentation](https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook)
-- [Console](https://ko-fi.com/manage/webhooks)
-- [AsyncAPI](asyncapi/ko-fi-asyncapi.yml) — models the outbound HTTP webhook (not WebSocket)
+- [Ko Fi Domain Security](https://apis.io/security/ko-fi/ko-fi-domain-security/)
 
-## Pricing
+#### Plans and pricing (1)
 
-- **Free:** 0% platform fee on tips and donations; 5% platform fee on memberships, shop sales, and commissions.
-- **Ko-fi Gold:** flat monthly subscription (roughly $12/month for new accounts; historically ~$6/month) that removes the 5% platform fee across memberships, shop, and commissions.
-- Third-party payment processing fees (~2.9% + $0.30 per transaction via PayPal/Stripe) apply on both plans and are charged by the processor, not by Ko-fi.
+Published plans, tiers and prices.
 
-See [plans/ko-fi-plans-pricing.yml](plans/ko-fi-plans-pricing.yml) and [finops/ko-fi-finops.yml](finops/ko-fi-finops.yml).
+- [Ko Fi Plans Pricing](https://apis.io/plans/ko-fi/ko-fi-plans-pricing/)
 
-## Common Properties
+#### Rate limits (1)
 
-- [LinkedIn](https://www.linkedin.com/company/ko-fi)
+Published request limits.
+
+- [Ko Fi Rate Limits](https://apis.io/rate-limits/ko-fi/ko-fi-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Ko Fi Finops](https://apis.io/finops/ko-fi/ko-fi-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://ko-fi.com)
 - [Documentation](https://help.ko-fi.com/hc/en-us/articles/360004162298-Does-Ko-fi-have-an-API-or-webhook)
-- [Plans](plans/ko-fi-plans-pricing.yml)
-- [Rate Limits](rate-limits/ko-fi-rate-limits.yml)
-- [Fin Ops](finops/ko-fi-finops.yml)
 - [Blog](https://blog.ko-fi.com)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 20.7** — emerging · rubric 0.24.0 · scored 2026-10-17
+
+| Facet | Score |
+|---|---|
+| Discoverability | 57.1 |
+| Contract quality | 40.6 |
+| Contract governance | 11.4 |
+| Operational transparency | 5.3 |
+| Developer ergonomics | 19.0 |
+| Access clarity | 5.3 |
+
+**Agent readiness 14.7** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | — |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | — |
+| Idempotency | — |
+| Error Semantics | — |
+| OpenAPI Examples | — |
+| Rate Limit Signal | derived (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | — |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+
+**Regulatory alignment 5.4** — Payments
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/ko-fi/](https://apis.io/providers/ko-fi/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Ko-fi: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/ko-fi/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
